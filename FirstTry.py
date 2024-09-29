@@ -21,6 +21,11 @@ distanceWanted = 10
 directionAngle = 2*math.pi*random.random()
 tempDirection = [inputCoord[0]+kmToDeg(distanceWanted)*math.cos(directionAngle)/3.1,inputCoord[1]+kmToDeg(distanceWanted)*math.sin(directionAngle)/3.1]
 tempDirection2 = [tempDirection[0]+kmToDeg(distanceWanted)*math.cos(directionAngle+math.pi/2)/3.1,inputCoord[1]+kmToDeg(distanceWanted)*math.sin(directionAngle+math.pi/2)/3.1]
+coords = [inputCoord,tempDirection,tempDirection2]
+maxX=max(coords, key=lambda x: x[0])[0]
+maxY=max(coords, key=lambda x: x[1])[1]
+minX=min(coords, key=lambda x: x[0])[0]
+minY=min(coords, key=lambda x: x[1])[1]
 G = ox.load_graphml(filepath='ottawaWithEnjoyabilityFixed.graphml')
 print("Loaded")
 G = cutGraphAround(G,inputCoord[0],inputCoord[1],distanceWanted*0.55)
@@ -35,5 +40,8 @@ print("First path found")
 pathToSecondDirection = nx.shortest_path(G, dest, nodeOfTemp2, weight='enjoyability')
 gettingBackToOrigin = nx.shortest_path(G, nodeOfTemp2, orig, weight='enjoyability')
 finalLoop = pathToRandomDirectionPoint +pathToSecondDirection[1:]+ gettingBackToOrigin[1:]
-fig, ax = ox.plot_graph_route(G, finalLoop, route_linewidth=6, node_size=0, bgcolor='k', route_color='cyan')
+
+F = cutGraph(G,minX-kmToDeg(0.5),maxX+kmToDeg(0.5),minY-kmToDeg(0.5),maxY+kmToDeg(0.5))
+
+fig, ax = ox.plot_graph_route(F, finalLoop, route_linewidth=6, node_size=0, bgcolor='k', route_color='cyan')
 plt.show()
