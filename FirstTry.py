@@ -47,3 +47,9 @@ def showLoop(G,inputCoord,distanceWanted):
 
     fig, ax = ox.plot_graph_route(F, finalLoop, route_linewidth=6, node_size=0, bgcolor='k', route_color='cyan')
     plt.show()
+def tryShowLoop(inputCoord,distanceWanted):
+    
+    try:
+        out=showLoop(G,inputCoord,distanceWanted)
+    except:
+        tryShowLoop(inputCoord,distanceWanted)
