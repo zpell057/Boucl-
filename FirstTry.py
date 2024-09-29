@@ -12,10 +12,15 @@ def kmToDeg(inp):
 def cutGraphAround(G,posX,posY,dist):
     d=kmToDeg(dist)
     return(cutGraph(G,posX-d,posX+d,posY-d,posY+d))
+def sabotageFirstPath(G, pathOfNodesToSabotage):
+    for i in range(len(pathOfNodesToSabotage)-1):
+        G[pathOfNodesToSabotage[i]][pathOfNodesToSabotage[i+1]][0]['enjoyability'] = 0.0
+    return(G)
 inputCoord = [-75.682316,45.421816]
 distanceWanted = 10
 directionAngle = 2*math.pi*random.random()
-tempDirection = [inputCoord[0]+kmToDeg(distanceWanted)*math.cos(directionAngle)/1.8,inputCoord[1]+kmToDeg(distanceWanted)*math.sin(directionAngle)/1.8]
+tempDirection = [inputCoord[0]+kmToDeg(distanceWanted)*math.cos(directionAngle)/3.1,inputCoord[1]+kmToDeg(distanceWanted)*math.sin(directionAngle)/3.1]
+tempDirection2 = [tempDirection[0]+kmToDeg(distanceWanted)*math.cos(directionAngle+math.pi/2)/3.1,inputCoord[1]+kmToDeg(distanceWanted)*math.sin(directionAngle+math.pi/2)/3.1]
 G = ox.load_graphml(filepath='ottawaWithEnjoyabilityFixed.graphml')
 print("Loaded")
 G = cutGraphAround(G,inputCoord[0],inputCoord[1],distanceWanted*0.55)
@@ -23,9 +28,12 @@ for u, v, data in G.edges(data=True):
             data['enjoyability'] = float(data['enjoyability'])
 orig = ox.distance.nearest_nodes(G,inputCoord[0],inputCoord[1])  
 dest = ox.distance.nearest_nodes(G,tempDirection[0],tempDirection[1])  # CBY -75.679709,45.419708
+nodeOfTemp2 = ox.distance.nearest_nodes(G,tempDirection2[0],tempDirection2[1])
 
-shortest_path = nx.shortest_path(G, orig, dest, weight='enjoyability')
-print("Shortest path found")
-
-fig, ax = ox.plot_graph_route(G, shortest_path, route_linewidth=6, node_size=0, bgcolor='k', route_color='cyan')
+pathToRandomDirectionPoint = nx.shortest_path(G, orig, dest, weight='enjoyability')
+print("First path found")
+pathToSecondDirection = nx.shortest_path(G, dest, nodeOfTemp2, weight='enjoyability')
+gettingBackToOrigin = nx.shortest_path(G, nodeOfTemp2, orig, weight='enjoyability')
+finalLoop = pathToRandomDirectionPoint +pathToSecondDirection[1:]+ gettingBackToOrigin[1:]
+fig, ax = ox.plot_graph_route(G, finalLoop, route_linewidth=6, node_size=0, bgcolor='k', route_color='cyan')
 plt.show()
